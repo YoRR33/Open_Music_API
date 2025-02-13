@@ -12,5 +12,10 @@ PGPASSWORD=
 PGDATABASE=
 PGPORT=5432
 
-2. install node_module di terminal
+2. buat file .prod.env
+# server configuration
+HOST=0.0.0.0
+PORT=5000
+
+3. install node_module di terminal
 npm install
