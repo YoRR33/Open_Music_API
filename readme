@@ -32,3 +32,10 @@ npm install
 http://localhost:15672/
 username: guest
 password: guest
+
+6. isi nodemailer authetication, dengan lihat smtp_user dan password pada akun di web nodemailer
+# nodemailer SMTP authentication
+SMTP_HOST=smtp.mailtrap.io
+SMTP_PORT=2525
+SMTP_USER=
+SMTP_PASSWORD=
