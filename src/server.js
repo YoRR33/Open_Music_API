@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const Hapi = require("@hapi/hapi");
 const Jwt = require("@hapi/jwt");
+const path = require("path");
+const Inert = require("@hapi/inert");
 
 // songs
 const songs = require("./api/songs");
@@ -34,18 +36,37 @@ const collaborations = require("./api/collaborations");
 const CollaborationsService = require("./services/postgres/CollaborationsService");
 const CollaborationsValidator = require("./validator/collaborations");
 
+// export
+const _exports = require("./api/exports");
+const ProducerService = require("./services/rabitmq/ProducerService");
+const ExportsValidator = require("./validator/exports");
+
+// storage
+const StorageService = require("./services/storage/StorageService");
+const UploadValidator = require("./validator/uploads");
+
+// cache
+const CacheService = require("./services/redis/CacheService");
+
 // error
 const ClientError = require("./exceptions/ClientError");
 
 const init = async () => {
+  const cacheService = new CacheService();
   const authenticationsService = new AuthenticationsService();
   const songsService = new SongsService();
-  const albumsService = new AlbumsService();
+  const albumsService = new AlbumsService(cacheService);
   const usersService = new UsersService();
-  const collaborationsService = new CollaborationsService(usersService);
+  const collaborationsService = new CollaborationsService(
+    usersService,
+    cacheService
+  );
   const playlistsService = new PlaylistsService(
     collaborationsService,
     songsService
+  );
+  const storageService = new StorageService(
+    path.resolve(__dirname, "api/albums/file/covers")
   );
 
   const server = Hapi.server({
@@ -62,6 +83,9 @@ const init = async () => {
   await server.register([
     {
       plugin: Jwt,
+    },
+    {
+      plugin: Inert,
     },
   ]);
 
@@ -93,8 +117,10 @@ const init = async () => {
     {
       plugin: albums,
       options: {
-        service: albumsService,
-        validator: AlbumsValidator,
+        albumsService,
+        storageService,
+        albumsValidator: AlbumsValidator,
+        uploadValidator: UploadValidator,
       },
     },
     {
@@ -128,6 +154,21 @@ const init = async () => {
         validator: CollaborationsValidator,
       },
     },
+    {
+      plugin: _exports,
+      options: {
+        ProducerService,
+        playlistsService,
+        validator: ExportsValidator,
+      },
+    },
+    // {
+    //   plugin: _exports,
+    //   options: {
+    //     service: ProducerService,
+    //     validator: ExportsValidator,
+    //   },
+    // },
   ]);
 
   server.ext("onPreResponse", (request, h) => {
