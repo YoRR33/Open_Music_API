@@ -17,10 +17,14 @@ exports.up = (pgm) => {
     album_id: {
       type: "VARCHAR(50)",
       notNull: true,
+      references: "albums(id)", 
+      onDelete: 'CASCADE',
     },
     user_id: {
       type: "VARCHAR(50)",
       notNull: true,
+      references: "users(id)", 
+      onDelete: 'CASCADE',
     },
     createdAt: {
       type: "TIMESTAMP",

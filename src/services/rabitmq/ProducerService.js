@@ -14,7 +14,7 @@ const ProducerService = {
     });
 
     // mengirim pesan ke antrian
-    await channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
+    await channel.sendToQueue(queue, Buffer.from(message));
 
     // menutup channel dengan delay 1 detik
     setTimeout(() => {
