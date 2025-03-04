@@ -27,15 +27,15 @@ class Listener {
       // const playlists = await this._playlistService.getPlaylistSong(playlistId);
 
       const playlist = await this._playlistService.getPlaylistById(playlistId);
-      const songInPlaylist =
-        await this._playlistService.getSongsFromPlaylist(playlistId);
+      const songInPlaylist = await this._playlistService.getSongsFromPlaylist(
+        playlistId
+      );
 
       const playlistSong = {
         Playlist: {
           id: playlist.id,
           name: playlist.name,
-          owner: playlist.username,
-          song: songInPlaylist,
+          songs: songInPlaylist,
         },
       };
 
